@@ -14,7 +14,9 @@
 
 MhodNgan Backend API service built with Elysia.js and Bun runtime.
 
-![Tech Stack](./images/techstack-cards.svg)
+<p align="center">
+  <img src="./images/techstack-cards.svg" alt="Tech Stack" />
+</p>
 
 ## Getting Started
 
