@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+    # Only deploy when PR is merged to main
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
