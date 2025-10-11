@@ -1,7 +1,7 @@
 <h1 align="center">MhodNgan Backend</h3>
 
 
-![banner](./images/Banner.jpg)
+![banner](./images/Banner.webp)
 
 <p align="center">By <b>ทีมงานคุณภาพศูนย์วิจัยฟอร์มช่างร่างทรงนกคุ้มหลีแห่งเทคโนบางมด</b>
 <br />
