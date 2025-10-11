@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+# bun.lockb - ต้องใช้สำหรับ install dependencies
+
+# Git
+.git/
+.gitignore
+
+# Environment variables
+.env
+.env.*
+
+# Development files
+*.log
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Documentation
+README.md
