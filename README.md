@@ -47,7 +47,7 @@ MhodNgan Backend API service built with Elysia.js and Bun runtime.
 ## To-do list
 - [x] Setup Google Cloud Run Deployment
 - [x] Initialize API documentation
-- [ ] Setup CI/CD with GitHub Actions
+- [x] Setup CI/CD with GitHub Actions
 - [ ] Setup Project Folder Structure
 - [ ] Integrate with Supabase
 
