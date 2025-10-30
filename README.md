@@ -44,11 +44,23 @@ MhodNgan Backend API service built with Elysia.js and Bun runtime.
 
 4. The server will start at [http://localhost:3000](http://localhost:3000)
 
+### Folder Structure
+```
+Mhodngan-backend/
+├── src/
+│   ├── routes/            # API route definitions
+│   ├── models/            # Database models
+│   ├── lib/               # Third-party integrations
+│   ├── types/             # TypeScript type definitions
+│   └── utils/             # Utility functions
+└── index.ts               # Application entry point
+```
+
 ## To-do list
 - [x] Setup Google Cloud Run Deployment
 - [x] Initialize API documentation
 - [x] Setup CI/CD with GitHub Actions
-- [ ] Setup Project Folder Structure
+- [x] Setup Project Folder Structure
 - [ ] Integrate with Supabase
 
 ## License
