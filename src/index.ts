@@ -1,12 +1,13 @@
 import { Elysia } from "elysia";
 import { openapi } from "@elysiajs/openapi";
+import { projectRoutes } from "./routes/projects";
 
 const PORT = process.env.PORT || 3000;
 
 const app = new Elysia()
   .use(openapi())
   .get("/", () => "hello")
-  .post("/hello", () => "OpenAPI")
+  .use(projectRoutes)
   .listen(PORT);
 
 console.log(
