@@ -42,7 +42,6 @@ yarn-error.log*
 package-lock.json
 **/*.bun
 
-DEPLOY.md
 CLAUDE.md
 
 key.json
