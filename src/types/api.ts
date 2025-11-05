@@ -18,21 +18,3 @@ export interface Project {
   created_at: string;
   updated_at: string;
 }
-
-export interface CreateProjectDto {
-  title: string;
-  content?: string;
-  badge: string;
-  preview_image_url?: string;
-  short_description?: string;
-  status?: "Draft" | "Published" | "Certified";
-}
-
-export interface UpdateProjectDto {
-  title?: string;
-  content?: string;
-  badge?: string;
-  preview_image_url?: string;
-  short_description?: string;
-  status?: "Draft" | "Published" | "Certified";
-}

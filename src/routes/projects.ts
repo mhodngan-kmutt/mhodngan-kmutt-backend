@@ -1,12 +1,11 @@
 import { Elysia } from "elysia";
 import { supabase } from "../lib/supabase";
 import { authenticateUser } from "../utils/auth";
-import type {
-  ApiResponse,
-  Project,
-  CreateProjectDto,
-  UpdateProjectDto,
-} from "../types/api";
+import type { ApiResponse, Project } from "../types/api";
+import {
+  CreateProjectSchema,
+  UpdateProjectSchema,
+} from "../validators/project";
 
 export const projectRoutes = new Elysia({ prefix: "/projects" })
   // Get all published projects (public access)
@@ -146,11 +145,9 @@ export const projectRoutes = new Elysia({ prefix: "/projects" })
         };
       }
 
-      const dto = body as CreateProjectDto;
-
       const { data: project, error: projectError } = await auth.userSupabase
         .from("projects")
-        .insert(dto)
+        .insert(body)
         .select()
         .single();
 
@@ -192,6 +189,7 @@ export const projectRoutes = new Elysia({ prefix: "/projects" })
       };
     },
     {
+      body: CreateProjectSchema,
       detail: {
         summary: "Create new project",
         description:
@@ -216,11 +214,9 @@ export const projectRoutes = new Elysia({ prefix: "/projects" })
         };
       }
 
-      const dto = body as UpdateProjectDto;
-
       const { data, error } = await auth.userSupabase
         .from("projects")
-        .update(dto)
+        .update(body)
         .eq("project_id", params.id)
         .select()
         .single();
@@ -250,6 +246,7 @@ export const projectRoutes = new Elysia({ prefix: "/projects" })
       };
     },
     {
+      body: UpdateProjectSchema,
       detail: {
         summary: "Update project",
         description:
