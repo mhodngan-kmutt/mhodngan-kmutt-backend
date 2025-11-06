@@ -6,16 +6,14 @@ import {
   ProjectDetailsResSchema,
 } from "../models/project";
 import { csv, type IncludeKey } from "../utils/project.query";
-import { getProjectById, listProjects } from "../services/project.service";
+import { getProjectById, listProjects } from "../services/project";
 
 export const projectRoutes = new Elysia({ prefix: "/project" })
 
   // GET /project/list
   .get("/list", async ({ query, set }) => {
     try {
-      const include = csv(
-        query.include as string | undefined
-      ) as IncludeKey[];
+      const include = csv(query.include as string | undefined) as IncludeKey[];
       const statusList = csv(query.status as string | undefined);
 
       const res = await listProjects(supabase, {
