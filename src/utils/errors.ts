@@ -75,7 +75,7 @@ export function handleError(
     return {
       error: 'Validation failed',
       code: 'VALIDATION_ERROR',
-      details: error.flatten ? error.flatten() : error.issues,
+      details: error.issues,
     }
   }
 
