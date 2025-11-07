@@ -77,3 +77,123 @@ export async function listProjects(
     data: rows,
   };
 }
+
+export async function getUserProjects(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  include: IncludeKey[] = ["categories", "links", "files"]
+) {
+  const { data, error } = await supabase
+    .from("project_collaborators")
+    .select(`projects(${buildSelect(include)})`)
+    .eq("contributor_user_id", userId);
+
+  if (error) throw error;
+
+  const projects = (data ?? [])
+    .map((item: any) => item.projects)
+    .filter(Boolean)
+    .map(mapProjectRow);
+
+  return { data: projects };
+}
+
+export async function createProject(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  projectData: {
+    title: string;
+    badge: string;
+    content?: string;
+    preview_image_url?: string;
+    short_description?: string;
+    status?: "Draft" | "Published" | "Certified";
+  }
+) {
+  const { data: project, error: projectError } = await supabase
+    .from("projects")
+    .insert(projectData)
+    .select()
+    .single();
+
+  if (projectError) throw projectError;
+
+  const { error: collaboratorError } = await supabase
+    .from("project_collaborators")
+    .insert({
+      project_id: project.project_id,
+      contributor_user_id: userId,
+    });
+
+  if (collaboratorError) {
+    await supabase
+      .from("projects")
+      .delete()
+      .eq("project_id", project.project_id);
+    throw collaboratorError;
+  }
+
+  return project;
+}
+
+export async function updateProject(
+  supabase: SupabaseClient<Database>,
+  projectId: string,
+  userId: string,
+  projectData: {
+    title?: string;
+    badge?: string;
+    content?: string;
+    preview_image_url?: string;
+    short_description?: string;
+    status?: "Draft" | "Published" | "Certified";
+  }
+) {
+  const { data: collaborator } = await supabase
+    .from("project_collaborators")
+    .select("*")
+    .eq("project_id", projectId)
+    .eq("contributor_user_id", userId)
+    .maybeSingle();
+
+  if (!collaborator) {
+    throw new Error("You don't have permission to update this project");
+  }
+
+  const { data, error } = await supabase
+    .from("projects")
+    .update(projectData)
+    .eq("project_id", projectId)
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  return data;
+}
+
+export async function deleteProject(
+  supabase: SupabaseClient<Database>,
+  projectId: string,
+  userId: string
+) {
+  const { data: collaborator } = await supabase
+    .from("project_collaborators")
+    .select("*")
+    .eq("project_id", projectId)
+    .eq("contributor_user_id", userId)
+    .maybeSingle();
+
+  if (!collaborator) {
+    throw new Error("You don't have permission to delete this project");
+  }
+
+  const { error } = await supabase
+    .from("projects")
+    .delete()
+    .eq("project_id", projectId);
+
+  if (error) throw error;
+
+  return { success: true };
+}

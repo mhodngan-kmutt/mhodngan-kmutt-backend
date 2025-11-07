@@ -1,11 +1,9 @@
-import { supabase, createUserClient } from "../lib/supabase";
+import { supabase } from "../lib/supabase";
 import type { User } from "@supabase/supabase-js";
-import type { SupabaseClient } from "@supabase/supabase-js";
 
 type AuthSuccess = {
   success: true;
   user: User;
-  userSupabase: SupabaseClient;
 };
 
 type AuthError = {
@@ -50,11 +48,8 @@ export async function authenticateUser(
     };
   }
 
-  const userSupabase = createUserClient(token);
-
   return {
     success: true,
     user,
-    userSupabase,
   };
 }
