@@ -42,7 +42,7 @@ MhodNgan Backend API service built with Elysia.js and Bun runtime.
    bun run dev
    ```
 
-4. The server will start at [http://localhost:3000](http://localhost:8080)
+4. The server will start at [http://localhost:8080](http://localhost:8080)
 
 ### Folder Structure
 ```
