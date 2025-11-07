@@ -51,7 +51,8 @@ jobs:
             --platform managed \
             --region $REGION \
             --allow-unauthenticated \
-            --port 8080
+            --port 8080 \
+            --set-env-vars SUPABASE_URL=${{ secrets.SUPABASE_URL }},SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }},SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
       - name: Show deployment URL
         run: |

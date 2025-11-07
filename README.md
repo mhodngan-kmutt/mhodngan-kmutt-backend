@@ -61,7 +61,7 @@ Mhodngan-backend/
 - [x] Initialize API documentation
 - [x] Setup CI/CD with GitHub Actions
 - [x] Setup Project Folder Structure
-- [ ] Integrate with Supabase
+- [x] Integrate with Supabase
 
 ## License
 
