@@ -5,7 +5,7 @@
 
 <p align="center">By <b>ทีมงานคุณภาพศูนย์วิจัยฟอร์มช่างร่างทรงนกคุ้มหลีแห่งเทคโนบางมด</b>
 <br />
-<a href="https://mhodngan-785868412143.asia-southeast1.run.app/openapi">📖 Explore the docs »</a>
+<a href="https://mhodngan-backend-785868412143.asia-southeast1.run.app/docs">📖 Explore the docs »</a>
 </p>
 
 
@@ -42,26 +42,20 @@ MhodNgan Backend API service built with Elysia.js and Bun runtime.
    bun run dev
    ```
 
-4. The server will start at [http://localhost:3000](http://localhost:3000)
+4. The server will start at [http://localhost:3000](http://localhost:8080)
 
 ### Folder Structure
 ```
 Mhodngan-backend/
 ├── src/
+│   ├── config/            # App-level configuration
 │   ├── routes/            # API route definitions
-│   ├── models/            # Database models
+│   ├── models/            # Domain model definitions
 │   ├── lib/               # Third-party integrations
-│   ├── types/             # TypeScript type definitions
+│   ├── services/          # Business logic / service layer
 │   └── utils/             # Utility functions
 └── index.ts               # Application entry point
 ```
-
-## To-do list
-- [x] Setup Google Cloud Run Deployment
-- [x] Initialize API documentation
-- [x] Setup CI/CD with GitHub Actions
-- [x] Setup Project Folder Structure
-- [x] Integrate with Supabase
 
 ## License
 
