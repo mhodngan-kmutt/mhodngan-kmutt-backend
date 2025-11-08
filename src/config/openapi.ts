@@ -16,6 +16,10 @@ export const openapiConfig = {
         url: "http://localhost:3000",
         description: "Development server",
       },
+      {
+        url: "https://mhodngan-backend-785868412143.asia-southeast1.run.app",
+        description: "Production server",
+      },
     ],
     tags: [
       {
