@@ -101,7 +101,7 @@ export function handleError(
     return {
       error: "Validation failed",
       code: "VALIDATION_ERROR",
-      details: error.issues,
+      details: (error as any).valueError.message,
     };
   }
 
@@ -141,7 +141,22 @@ function mapStatusToCode(status: number): ErrorCode {
 }
 
 function isZodError(err: unknown): err is ZodError {
-  return !!err && typeof err === "object" && "issues" in (err as any);
+  // Check for standard Zod error format
+  if (!!err && typeof err === "object" && "issues" in (err as any)) {
+    return true;
+  }
+
+  // Check for Elysia ValidationError format (has type: "validation")
+  if (
+    !!err &&
+    typeof err === "object" &&
+    "type" in (err as any) &&
+    (err as any).code === "VALIDATION"
+  ) {
+    return true;
+  }
+
+  return false;
 }
 
 function isSupabaseError(err: unknown): err is {
