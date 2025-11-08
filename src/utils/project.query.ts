@@ -1,5 +1,5 @@
 /** Supported include flags for projects */
-export type IncludeKey = 'categories' | 'links' | 'files'
+export type IncludeKey = 'categories' | 'links' | 'files' | 'contributors'
 
 /** Split CSV query parameters into string[] */
 export const csv = (v?: string) =>
@@ -55,6 +55,20 @@ export function buildSelect(includeList: IncludeKey[]) {
   if (includeList.includes('files')) {
     include.push(`project_files(file_id,file_url)`)
   }
+  if (includeList.includes('contributors')) {
+    include.push(`
+      project_collaborators(
+        contributor:users(
+          user_id,
+          username,
+          fullname,
+          email,
+          profile_image_url,
+          role
+        )
+      )
+    `)
+  }
   return [base, ...include].join(',')
 }
 
@@ -83,8 +97,8 @@ export function calcRange(page: number, pageSize: number) {
 }
 
 /** Map raw Supabase row to structured API response */
-export function mapProjectRow(row: any) {
-  return {
+export function mapProjectRow(row: any, includeList?: IncludeKey[]) {
+  const result: any = {
     projectId: row.project_id,
     title: row.title,
     badge: row.badge,
@@ -92,21 +106,47 @@ export function mapProjectRow(row: any) {
     previewImageUrl: row.preview_image_url ?? null,
     shortDescription: row.short_description ?? null,
     content: row.content ?? null,
-    categories: (row.project_categories ?? [])
-      .map((pc: any) => pc?.category)
-      .filter(Boolean)
-      .map((c: any) => ({
-        categoryId: c.category_id,
-        categoryName: c.category_name
-      })),
-    externalLinks: (row.project_external_links ?? []).map((l: any) => l.link_url),
-    files: (row.project_files ?? []).map((f: any) => ({
-      fileId: f.file_id,
-      fileUrl: f.file_url
-    })),
     likeCount: row.like_count ?? 0,
     viewCount: row.view_count ?? 0,
     createdAt: row.created_at,
     updatedAt: row.updated_at
   }
+
+  // Only include if specified in includeList
+  if (includeList?.includes('categories')) {
+    result.categories = (row.project_categories ?? [])
+      .map((pc: any) => pc?.category)
+      .filter(Boolean)
+      .map((c: any) => ({
+        categoryId: c.category_id,
+        categoryName: c.category_name
+      }))
+  }
+
+  if (includeList?.includes('links')) {
+    result.externalLinks = (row.project_external_links ?? []).map((l: any) => l.link_url)
+  }
+
+  if (includeList?.includes('files')) {
+    result.files = (row.project_files ?? []).map((f: any) => ({
+      fileId: f.file_id,
+      fileUrl: f.file_url
+    }))
+  }
+
+  if (includeList?.includes('contributors')) {
+    result.contributors = (row.project_collaborators ?? [])
+      .map((pc: any) => pc?.contributor)
+      .filter(Boolean)
+      .map((c: any) => ({
+        userId: c.user_id,
+        username: c.username,
+        fullname: c.fullname,
+        email: c.email,
+        profileImageUrl: c.profile_image_url ?? null,
+        role: c.role
+      }))
+  }
+
+  return result
 }

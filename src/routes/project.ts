@@ -24,7 +24,11 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
   .get(
     "/",
     async ({ query }) => {
-      const include = csv(query.include) as IncludeKey[];
+      const include = (
+        Array.isArray(query.include)
+          ? query.include
+          : csv(query.include)
+      ) as IncludeKey[];
       const statusList = csv(query.status);
 
       return await listProjects(supabase, {
@@ -35,7 +39,9 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
         order: query.order ?? "desc",
         page: query.page ? Number(query.page) : 1,
         pageSize: query.pageSize ? Number(query.pageSize) : 20,
-        include: include.length ? include : ["categories", "links", "files"],
+        include: include.length
+          ? include
+          : ["categories", "links", "files", "contributors"],
       });
     },
     {
@@ -43,7 +49,7 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
       detail: {
         summary: "Get all projects",
         description:
-          "Retrieve a paginated list of projects. Defaults to 'Published' status only. Supports filtering by status, badge, search query, contributors, and date range. Supports sorting and customizable includes. Public access.",
+          "Retrieve a paginated list of projects. Defaults to 'Published' status only. Supports filtering by status, badge, search query, contributors, and date range. Supports sorting and customizable includes (categories, links, files, contributors). Default includes: categories, links, files, contributors. Public access.",
         tags: ["Projects"],
       },
     }
@@ -79,22 +85,31 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
   // Get project details by ID
   .get(
     "/:id",
-    async ({ params }) => {
-      const project = await getProjectById(supabase, params.id, [
-        "categories",
-        "links",
-        "files",
-      ]);
+    async ({ params, query }) => {
+      const include = (
+        Array.isArray(query.include)
+          ? query.include
+          : csv(query.include)
+      ) as IncludeKey[];
+
+      const project = await getProjectById(
+        supabase,
+        params.id,
+        include.length
+          ? include
+          : ["categories", "links", "files", "contributors"]
+      );
       if (!project) throw AppError.notFound("Project not found");
 
       return ProjectDetailsResSchema.parse(project);
     },
     {
       params: ProjectIdParamsSchema,
+      query: ProjectListQuerySchema.pick({ include: true }),
       detail: {
         summary: "Get project details by ID",
         description:
-          "Retrieve detailed information about a specific project by ID. Includes categories, external links, and files. Public access.",
+          "Retrieve detailed information about a specific project by ID. Supports optional includes: categories, links, files, contributors. Default: categories, links, files. Public access.",
         tags: ["Projects"],
       },
     }

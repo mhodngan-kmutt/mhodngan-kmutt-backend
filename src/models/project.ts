@@ -13,7 +13,18 @@ export const ProjectListQuerySchema = z.object({
   order: z.enum(["asc", "desc"]).optional(),
   page: z.string().regex(/^\d+$/).optional(),
   pageSize: z.string().regex(/^\d+$/).optional(),
-  include: z.string().optional(),
+  include: z
+    .union([
+      z.string().regex(
+        /^(categories|links|files|contributors)(,(categories|links|files|contributors))*$/,
+        "Invalid include format"
+      ),
+      z.array(z.enum(["categories", "links", "files", "contributors"])),
+    ])
+    .optional()
+    .describe(
+      "Comma-separated list of relations to include. Allowed values: categories, links, files, contributors. Example: categories,links,files,contributors"
+    ),
 });
 
 export const ProjectIdParamsSchema = z.object({
@@ -42,6 +53,18 @@ export const ProjectDetailsResSchema = z.object({
       z.object({
         fileId: z.string(),
         fileUrl: z.string(),
+      })
+    )
+    .default([]),
+  contributors: z
+    .array(
+      z.object({
+        userId: z.string(),
+        username: z.string().nullable(),
+        fullname: z.string(),
+        email: z.string(),
+        profileImageUrl: z.string().nullable(),
+        role: z.enum(["admin", "contributor", "visitor"]),
       })
     )
     .default([]),

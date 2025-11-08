@@ -22,7 +22,7 @@ export async function getProjectById(
   if (error) throw error;
   if (!data) return null;
 
-  return mapProjectRow(data);
+  return mapProjectRow(data, include);
 }
 
 export async function listProjects(
@@ -65,7 +65,7 @@ export async function listProjects(
 
   if (error) throw error;
 
-  const rows = (data ?? []).map(mapProjectRow);
+  const rows = (data ?? []).map((row) => mapProjectRow(row, params.include));
   return {
     meta: {
       page: p,
@@ -93,7 +93,7 @@ export async function getUserProjects(
   const projects = (data ?? [])
     .map((item: any) => item.projects)
     .filter(Boolean)
-    .map(mapProjectRow);
+    .map((row) => mapProjectRow(row, include));
 
   return { data: projects };
 }
