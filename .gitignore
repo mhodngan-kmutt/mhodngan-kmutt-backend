@@ -46,4 +46,5 @@ package-lock.json
 DEPLOY.md
 CLAUDE.md
 
-key.json
+key.jsonsupabase/
+supabase/

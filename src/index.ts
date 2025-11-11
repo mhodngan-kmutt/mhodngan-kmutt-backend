@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { openapi } from "@elysiajs/openapi";
 import { projectRoutes } from "./routes/project";
+import { certificationRoutes } from "./routes/certification";
 import { handleError } from "./utils/errors";
 import { openapiConfig } from "./config/openapi";
 import { userRoutes } from "./routes/user";
@@ -14,6 +15,7 @@ const app = new Elysia()
   .use(openapi(openapiConfig))
   .get("/", () => "hello")
   .use(projectRoutes)
+  .use(certificationRoutes)
   .use(userRoutes)
   .listen(PORT);
 
