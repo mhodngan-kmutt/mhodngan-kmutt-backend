@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       categories: {
@@ -36,7 +61,7 @@ export type Database = {
           project_id: string
         }
         Insert: {
-          certification_date?: string
+          certification_date: string
           professor_user_id: string
           project_id: string
         }
@@ -65,23 +90,23 @@ export type Database = {
       comments: {
         Row: {
           comment_id: string
-          content: string
+          commented_at: string | null
+          message: string
           project_id: string
-          timestamp: string | null
           user_id: string
         }
         Insert: {
           comment_id?: string
-          content: string
+          commented_at?: string | null
+          message: string
           project_id: string
-          timestamp?: string | null
           user_id: string
         }
         Update: {
           comment_id?: string
-          content?: string
+          commented_at?: string | null
+          message?: string
           project_id?: string
-          timestamp?: string | null
           user_id?: string
         }
         Relationships: [
@@ -109,7 +134,7 @@ export type Database = {
           introduction_content: string | null
           program: string
           user_id: string
-          year: number | null
+          year: number
         }
         Insert: {
           department: string
@@ -118,7 +143,7 @@ export type Database = {
           introduction_content?: string | null
           program: string
           user_id: string
-          year?: number | null
+          year?: number
         }
         Update: {
           department?: string
@@ -127,7 +152,7 @@ export type Database = {
           introduction_content?: string | null
           program?: string
           user_id?: string
-          year?: number | null
+          year?: number
         }
         Relationships: [
           {
@@ -141,14 +166,17 @@ export type Database = {
       }
       likes: {
         Row: {
+          liked_at: string | null
           project_id: string
           user_id: string
         }
         Insert: {
+          liked_at?: string | null
           project_id: string
           user_id: string
         }
         Update: {
+          liked_at?: string | null
           project_id?: string
           user_id?: string
         }
@@ -313,42 +341,121 @@ export type Database = {
           },
         ]
       }
+      project_stats_monthly: {
+        Row: {
+          comments: number
+          id: string
+          likes: number
+          month: string
+          project_id: string
+          updated_at: string | null
+          views: number
+        }
+        Insert: {
+          comments?: number
+          id?: string
+          likes?: number
+          month: string
+          project_id: string
+          updated_at?: string | null
+          views?: number
+        }
+        Update: {
+          comments?: number
+          id?: string
+          likes?: number
+          month?: string
+          project_id?: string
+          updated_at?: string | null
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_stats_monthly_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["project_id"]
+          },
+        ]
+      }
+      project_stats_weekly: {
+        Row: {
+          comments: number
+          id: string
+          likes: number
+          project_id: string
+          updated_at: string | null
+          views: number
+          week: string
+        }
+        Insert: {
+          comments?: number
+          id?: string
+          likes?: number
+          project_id: string
+          updated_at?: string | null
+          views?: number
+          week: string
+        }
+        Update: {
+          comments?: number
+          id?: string
+          likes?: number
+          project_id?: string
+          updated_at?: string | null
+          views?: number
+          week?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_stats_weekly_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["project_id"]
+          },
+        ]
+      }
       projects: {
         Row: {
-          badge: string
-          content: string | null
+          badge: Database["public"]["Enums"]["project_badge"]
+          comment_count: number | null
+          content: string
           created_at: string | null
           like_count: number | null
           preview_image_url: string | null
           project_id: string
           short_description: string | null
-          status: string | null
+          status: Database["public"]["Enums"]["project_status"]
           title: string
           updated_at: string | null
           view_count: number | null
         }
         Insert: {
-          badge: string
-          content?: string | null
+          badge: Database["public"]["Enums"]["project_badge"]
+          comment_count?: number | null
+          content: string
           created_at?: string | null
           like_count?: number | null
           preview_image_url?: string | null
           project_id?: string
           short_description?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
           title: string
           updated_at?: string | null
           view_count?: number | null
         }
         Update: {
-          badge?: string
-          content?: string | null
+          badge?: Database["public"]["Enums"]["project_badge"]
+          comment_count?: number | null
+          content?: string
           created_at?: string | null
           like_count?: number | null
           preview_image_url?: string | null
           project_id?: string
           short_description?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
           title?: string
           updated_at?: string | null
           view_count?: number | null
@@ -361,8 +468,8 @@ export type Database = {
           deleted_at: string | null
           email: string
           fullname: string
-          profile_image_path: string | null
-          role: string | null
+          profile_image_url: string | null
+          role: Database["public"]["Enums"]["user_role"]
           updated_at: string | null
           user_id: string
           username: string | null
@@ -372,8 +479,8 @@ export type Database = {
           deleted_at?: string | null
           email: string
           fullname: string
-          profile_image_path?: string | null
-          role?: string | null
+          profile_image_url?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
           user_id?: string
           username?: string | null
@@ -383,23 +490,107 @@ export type Database = {
           deleted_at?: string | null
           email?: string
           fullname?: string
-          profile_image_path?: string | null
-          role?: string | null
+          profile_image_url?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
           user_id?: string
           username?: string | null
         }
         Relationships: []
       }
+      views: {
+        Row: {
+          project_id: string
+          user_id: string
+          view_id: string
+          viewed_at: string | null
+        }
+        Insert: {
+          project_id: string
+          user_id: string
+          view_id?: string
+          viewed_at?: string | null
+        }
+        Update: {
+          project_id?: string
+          user_id?: string
+          view_id?: string
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "views_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "views_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      _psm_upsert_increment: {
+        Args: {
+          p_inc_comments: number
+          p_inc_likes: number
+          p_inc_views: number
+          p_project_id: string
+          p_ts: string
+        }
+        Returns: undefined
+      }
+      _psw_upsert_increment: {
+        Args: {
+          p_inc_comments: number
+          p_inc_likes: number
+          p_inc_views: number
+          p_project_id: string
+          p_ts: string
+        }
+        Returns: undefined
+      }
+      mock_insert_likes: {
+        Args: {
+          p_count: number
+          p_days_back?: number
+          p_max_attempts_multiplier?: number
+          p_project_id?: string
+        }
+        Returns: number
+      }
+      mock_insert_views: {
+        Args: { p_count: number; p_days_back?: number; p_project_id?: string }
+        Returns: number
+      }
+      rebuild_all_project_counts: { Args: never; Returns: undefined }
+      rebuild_monthly_stats: {
+        Args: { p_end: string; p_start: string }
+        Returns: undefined
+      }
+      rebuild_weekly_stats: {
+        Args: { p_end: string; p_start: string }
+        Returns: undefined
+      }
+      reset_likes_comments_views: { Args: never; Returns: undefined }
+      sync_project_counts: {
+        Args: { p_project_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      project_badge: "Competition" | "Thesis" | "Senior" | "Junior" | "Term"
+      project_status: "Certified" | "Published"
+      user_role: "professor" | "contributor" | "visitor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -525,7 +716,14 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  public: {
+  graphql_public: {
     Enums: {},
+  },
+  public: {
+    Enums: {
+      project_badge: ["Competition", "Thesis", "Senior", "Junior", "Term"],
+      project_status: ["Certified", "Published"],
+      user_role: ["professor", "contributor", "visitor"],
+    },
   },
 } as const
