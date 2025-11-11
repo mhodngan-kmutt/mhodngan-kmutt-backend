@@ -11,7 +11,11 @@ export const SORT_WHITELIST = new Set([
   'updated_at',
   'title',
   'like_count',
-  'view_count'
+  'view_count',
+  'monthly_like_count',
+  'monthly_view_count',
+  'yearly_like_count',
+  'yearly_view_count'
 ] as const)
 
 /** Normalize orderBy and order values */
@@ -23,8 +27,13 @@ export function safeOrder(orderBy?: string, order?: string) {
   return { field, ascending }
 }
 
+/** Check if orderBy needs stats data */
+export function needsStatsData(orderBy?: string) {
+  return orderBy?.includes('monthly_') || orderBy?.includes('yearly_')
+}
+
 /** Build Supabase SELECT string based on requested includes */
-export function buildSelect(includeList: IncludeKey[]) {
+export function buildSelect(includeList: IncludeKey[], withStats = false) {
   const base = `
     project_id,
     title,
@@ -39,6 +48,12 @@ export function buildSelect(includeList: IncludeKey[]) {
     updated_at
   `
   const include: string[] = []
+
+  // Add stats subqueries if needed for ordering
+  if (withStats) {
+    include.push(`project_stats_monthly(month,views,likes)`)
+  }
+
   if (includeList.includes('categories')) {
     include.push(`
       project_categories:project_categories(
@@ -96,8 +111,44 @@ export function calcRange(page: number, pageSize: number) {
   return { p, take, fromIdx, toIdx }
 }
 
+/** Calculate monthly stats (last 30 days) from stats array */
+export function calcMonthlyStats(monthlyStats: any[]) {
+  const now = new Date()
+  const thirtyDaysAgo = new Date(now)
+  thirtyDaysAgo.setDate(now.getDate() - 30)
+
+  const stats = (monthlyStats ?? []).filter((s: any) => {
+    if (!s.month) return false
+    const monthDate = new Date(s.month + '-01')
+    return monthDate >= thirtyDaysAgo
+  })
+
+  return {
+    monthly_view_count: stats.reduce((sum: number, s: any) => sum + (s.views ?? 0), 0),
+    monthly_like_count: stats.reduce((sum: number, s: any) => sum + (s.likes ?? 0), 0)
+  }
+}
+
+/** Calculate yearly stats (last 365 days) from stats array */
+export function calcYearlyStats(yearlyStats: any[]) {
+  const now = new Date()
+  const oneYearAgo = new Date(now)
+  oneYearAgo.setDate(now.getDate() - 365)
+
+  const stats = (yearlyStats ?? []).filter((s: any) => {
+    if (!s.month) return false
+    const monthDate = new Date(s.month + '-01')
+    return monthDate >= oneYearAgo
+  })
+
+  return {
+    yearly_view_count: stats.reduce((sum: number, s: any) => sum + (s.views ?? 0), 0),
+    yearly_like_count: stats.reduce((sum: number, s: any) => sum + (s.likes ?? 0), 0)
+  }
+}
+
 /** Map raw Supabase row to structured API response */
-export function mapProjectRow(row: any, includeList?: IncludeKey[]) {
+export function mapProjectRow(row: any, includeList?: IncludeKey[], withStats = false) {
   const result: any = {
     projectId: row.project_id,
     title: row.title,
@@ -110,6 +161,17 @@ export function mapProjectRow(row: any, includeList?: IncludeKey[]) {
     viewCount: row.view_count ?? 0,
     createdAt: row.created_at,
     updatedAt: row.updated_at
+  }
+
+  // Add monthly/yearly stats if requested
+  if (withStats && row.project_stats_monthly) {
+    const monthlyStats = calcMonthlyStats(row.project_stats_monthly)
+    const yearlyStats = calcYearlyStats(row.project_stats_monthly)
+
+    result.monthlyViewCount = monthlyStats.monthly_view_count
+    result.monthlyLikeCount = monthlyStats.monthly_like_count
+    result.yearlyViewCount = yearlyStats.yearly_view_count
+    result.yearlyLikeCount = yearlyStats.yearly_like_count
   }
 
   // Only include if specified in includeList

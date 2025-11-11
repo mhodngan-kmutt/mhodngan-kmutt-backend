@@ -32,7 +32,10 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
       const statusList = csv(query.status);
 
       return await listProjects(supabase, {
-        ...query,
+        q: query.q,
+        badge: query.badge,
+        from: query.from,
+        to: query.to,
         statusList: statusList.length ? statusList : ["Published"],
         contributors: csv(query.contributors),
         orderBy: query.orderBy ?? "updated_at",
@@ -41,7 +44,7 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
         pageSize: query.pageSize ? Number(query.pageSize) : 20,
         include: include.length
           ? include
-          : ["categories", "links", "files", "contributors"],
+          : (["categories", "links", "files", "contributors"] as IncludeKey[]),
       });
     },
     {

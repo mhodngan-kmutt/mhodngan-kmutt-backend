@@ -6,6 +6,9 @@ import {
   calcRange,
   mapProjectRow,
   safeOrder,
+  needsStatsData,
+  calcMonthlyStats,
+  calcYearlyStats,
 } from "../utils/project.query";
 
 export async function getProjectById(
@@ -31,19 +34,20 @@ export async function listProjects(
 ) {
   const { p, take, fromIdx, toIdx } = calcRange(params.page, params.pageSize);
   const { field, ascending } = safeOrder(params.orderBy, params.order);
+  const needStats = needsStatsData(params.orderBy);
 
   // Base query
-  let q = supabase.from("projects").select(buildSelect(params.include));
+  let q = supabase.from("projects").select(buildSelect(params.include, needStats));
 
   // Search
   if (params.q)
     q = q.or(`title.ilike.%${params.q}%,content.ilike.%${params.q}%`);
 
   // Badge filter
-  if (params.badge) q = q.eq("badge", params.badge);
+  if (params.badge) q = q.eq("badge", params.badge as any);
 
   // Status filter
-  if (params.statusList?.length) q = q.in("status", params.statusList);
+  if (params.statusList?.length) q = q.in("status", params.statusList as any);
 
   // Date range
   if (params.from) q = q.gte("created_at", params.from);
@@ -53,28 +57,73 @@ export async function listProjects(
   if (params.contributors?.length) {
     q = q
       .select(
-        buildSelect(params.include) + ",project_contributors!inner(user_id)"
+        buildSelect(params.include, needStats) + ",project_contributors!inner(user_id)"
       )
       .in("project_contributors.user_id", params.contributors);
   }
 
   // Pagination & sort
-  const { data, error, count } = await q
-    .order(field, { ascending })
-    .range(fromIdx, toIdx);
+  // If ordering by stats, we need to sort in-memory after calculating stats
+  let result;
+  if (needStats) {
+    // Get all matching records without pagination
+    const { data, error, count } = await q;
+    if (error) throw error;
 
-  if (error) throw error;
+    // Map and calculate stats for each row
+    let rows = (data ?? []).map((row) => {
+      const mapped = mapProjectRow(row, params.include, true);
+      return mapped;
+    });
 
-  const rows = (data ?? []).map((row) => mapProjectRow(row, params.include));
+    // Sort in-memory based on the stats field
+    rows.sort((a, b) => {
+      let aVal = 0, bVal = 0;
+      if (field === 'monthly_view_count') {
+        aVal = a.monthlyViewCount ?? 0;
+        bVal = b.monthlyViewCount ?? 0;
+      } else if (field === 'monthly_like_count') {
+        aVal = a.monthlyLikeCount ?? 0;
+        bVal = b.monthlyLikeCount ?? 0;
+      } else if (field === 'yearly_view_count') {
+        aVal = a.yearlyViewCount ?? 0;
+        bVal = b.yearlyViewCount ?? 0;
+      } else if (field === 'yearly_like_count') {
+        aVal = a.yearlyLikeCount ?? 0;
+        bVal = b.yearlyLikeCount ?? 0;
+      }
+      return ascending ? aVal - bVal : bVal - aVal;
+    });
+
+    // Apply pagination manually
+    const paginatedRows = rows.slice(fromIdx, toIdx + 1);
+
+    result = {
+      data: paginatedRows,
+      count: count ?? rows.length,
+      rows,
+    };
+  } else {
+    // Normal database ordering
+    const { data, error, count } = await q
+      .order(field, { ascending })
+      .range(fromIdx, toIdx);
+
+    if (error) throw error;
+
+    const rows = (data ?? []).map((row) => mapProjectRow(row, params.include, false));
+    result = { data: rows, count: count ?? rows.length, rows };
+  }
+
   return {
     meta: {
       page: p,
       pageSize: take,
-      total: count ?? rows.length,
-      totalPages: Math.ceil((count ?? rows.length) / take),
+      total: result.count,
+      totalPages: Math.ceil(result.count / take),
       sort: { orderBy: field, order: ascending ? "asc" : "desc" },
     },
-    data: rows,
+    data: result.data,
   };
 }
 
@@ -112,7 +161,7 @@ export async function createProject(
 ) {
   const { data: project, error: projectError } = await supabase
     .from("projects")
-    .insert(projectData)
+    .insert(projectData as any)
     .select()
     .single();
 
@@ -162,7 +211,7 @@ export async function updateProject(
 
   const { data, error } = await supabase
     .from("projects")
-    .update(projectData)
+    .update(projectData as any)
     .eq("project_id", projectId)
     .select()
     .single();

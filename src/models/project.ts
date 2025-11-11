@@ -8,7 +8,17 @@ export const ProjectListQuerySchema = z.object({
   to: z.string().optional(),
   contributors: z.string().optional(),
   orderBy: z
-    .enum(["created_at", "updated_at", "title", "like_count", "view_count"])
+    .enum([
+      "created_at",
+      "updated_at",
+      "title",
+      "like_count",
+      "view_count",
+      "monthly_like_count",
+      "monthly_view_count",
+      "yearly_like_count",
+      "yearly_view_count",
+    ])
     .optional(),
   order: z.enum(["asc", "desc"]).optional(),
   page: z.string().regex(/^\d+$/).optional(),
