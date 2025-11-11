@@ -354,44 +354,6 @@ export type Database = {
           },
         ]
       }
-      project_stats_weekly: {
-        Row: {
-          comments: number
-          id: string
-          likes: number
-          project_id: string
-          updated_at: string | null
-          views: number
-          week: string
-        }
-        Insert: {
-          comments?: number
-          id?: string
-          likes?: number
-          project_id: string
-          updated_at?: string | null
-          views?: number
-          week: string
-        }
-        Update: {
-          comments?: number
-          id?: string
-          likes?: number
-          project_id?: string
-          updated_at?: string | null
-          views?: number
-          week?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "project_stats_weekly_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["project_id"]
-          },
-        ]
-      }
       projects: {
         Row: {
           badge: Database["public"]["Enums"]["project_badge"]
@@ -524,16 +486,6 @@ export type Database = {
         }
         Returns: undefined
       }
-      _psw_upsert_increment: {
-        Args: {
-          p_inc_comments: number
-          p_inc_likes: number
-          p_inc_views: number
-          p_project_id: string
-          p_ts: string
-        }
-        Returns: undefined
-      }
       mock_insert_likes: {
         Args: {
           p_count: number
@@ -549,10 +501,6 @@ export type Database = {
       }
       rebuild_all_project_counts: { Args: never; Returns: undefined }
       rebuild_monthly_stats: {
-        Args: { p_end: string; p_start: string }
-        Returns: undefined
-      }
-      rebuild_weekly_stats: {
         Args: { p_end: string; p_start: string }
         Returns: undefined
       }
