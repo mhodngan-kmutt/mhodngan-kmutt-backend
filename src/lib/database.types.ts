@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       categories: {
@@ -81,7 +56,7 @@ export type Database = {
           {
             foreignKeyName: "certifications_project_id_fkey"
             columns: ["project_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["project_id"]
           },
@@ -664,13 +639,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  public: {
-    Enums: {
-      project_badge: ["Competition", "Thesis", "Senior", "Junior", "Term"],
-      project_status: ["Certified", "Published"],
-      user_role: ["professor", "contributor", "visitor"],
-    },
-  },
   public: {
     Enums: {
       project_badge: ["Competition", "Thesis", "Senior", "Junior", "Term"],
