@@ -80,6 +80,18 @@ export const ProjectDetailsResSchema = z.object({
       }),
     )
     .default([]),
+  certifiedBy: z
+    .object({
+      userId: z.string(),
+      fullname: z.string(),
+      email: z.string(),
+      profileImageUrl: z.string().nullable(),
+      position: z.string(),
+      department: z.string(),
+      faculty: z.string(),
+      certificationDate: z.string(),
+    })
+    .nullable(),
   likeCount: z.number(),
   viewCount: z.number(),
   createdAt: z.string(),

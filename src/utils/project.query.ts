@@ -89,6 +89,25 @@ export function buildSelect(includeList: IncludeKey[], withStats = false) {
       )
     `);
   }
+
+  // Always include certification data
+  include.push(`
+    certifications(
+      certification_date,
+      professor:professors(
+        user_id,
+        position,
+        department,
+        faculty,
+        user:users(
+          fullname,
+          email,
+          profile_image_url
+        )
+      )
+    )
+  `);
+
   return [base, ...include].join(",");
 }
 
@@ -231,6 +250,23 @@ export function mapProjectRow(
         profileImageUrl: c.profile_image_url ?? null,
         role: c.role,
       }));
+  }
+
+  // Always include certification data (if exists)
+  const certification = row.certifications?.[0];
+  if (certification?.professor) {
+    result.certifiedBy = {
+      userId: certification.professor.user_id,
+      fullname: certification.professor.user?.fullname,
+      email: certification.professor.user?.email,
+      profileImageUrl: certification.professor.user?.profile_image_url ?? null,
+      position: certification.professor.position,
+      department: certification.professor.department,
+      faculty: certification.professor.faculty,
+      certificationDate: certification.certification_date,
+    };
+  } else {
+    result.certifiedBy = null;
   }
 
   return result;
