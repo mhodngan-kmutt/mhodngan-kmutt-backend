@@ -5,6 +5,7 @@ import { openapiConfig } from "./config/openapi";
 import { certificationRoutes } from "./routes/certification";
 import { projectRoutes } from "./routes/project";
 import { userRoutes } from "./routes/user";
+import { viewRoutes } from "./routes/view";
 import { commentRoutes } from "./routes/comment";
 import { handleError } from "./utils/errors";
 
@@ -18,6 +19,7 @@ const app = new Elysia()
   .use(projectRoutes)
   .use(certificationRoutes)
   .use(userRoutes)
+  .use(viewRoutes)
   .use(commentRoutes)
   .listen(PORT);
 

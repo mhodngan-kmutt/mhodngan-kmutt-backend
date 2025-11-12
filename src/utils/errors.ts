@@ -48,6 +48,10 @@ export class AppError extends Error {
   static internal(msg = "Internal Server Error", details?: unknown) {
     return new AppError(500, msg, { code: "INTERNAL_SERVER_ERROR", details });
   }
+
+  static databaseError(msg = "Database Error", details?: unknown) {
+    return new AppError(500, msg, { code: "SUPABASE_ERROR", details });
+  }
 }
 
 // Global error handler
