@@ -4,8 +4,14 @@ import type { Database } from "../lib/database.types";
 
 type DB = SupabaseClient<Database>;
 
-export type CertificationRow =
-  Database["public"]["Tables"]["certifications"]["Row"];
+type RowCert = Database["public"]["Tables"]["certifications"]["Row"];
+type RowProf = Database["public"]["Tables"]["professors"]["Row"];
+type RowUser = Database["public"]["Tables"]["users"]["Row"];
+
+export type CertificationRow = RowCert;
+
+export type CertificationWithProfessorUser =
+  RowCert & { professor: (RowProf & { user: RowUser | null }) | null };
 
 export type ProjectStatus =
   Database["public"]["Enums"]["project_status"]; // "Draft" | "Published" | "Certified"
@@ -89,19 +95,32 @@ export async function deleteMyCertification(
   return { success: true };
 }
 
-export async function listCertificationsByProject(
+export async function listCertificationsByProjectWithProfessor(
   supabase: DB,
   projectId: string
-): Promise<CertificationRow[]> {
-  const { data, error } = await supabase
+): Promise<{ count: number; data: CertificationWithProfessorUser[] }> {
+  const { data, count, error } = await supabase
     .from("certifications")
-    .select("*")
+    .select(
+      `
+      *,
+      professor:professors!certifications_professor_user_id_fkey(
+        *,
+        user:users(*)
+      )
+    `,
+      { count: "exact" } // enables returning total count
+    )
     .eq("project_id", projectId)
     .order("certification_date", { ascending: false });
 
   if (error) throw error;
-  return data ?? [];
+  return { 
+    count: count ?? 0, 
+    data: (data ?? []) as CertificationWithProfessorUser[] 
+  };
 }
+
 
 /* ------------------------------------------------------------------ */
 /* Helpers for auto-status logic                                       */
@@ -189,54 +208,4 @@ export async function deleteMyCertificationWithAutoStatus(
   }
 
   return { success: true as const, statusUpdated };
-}
-
-/* ------------------------------------------------------------------ */
-/* Optional: join helpers (if you want richer GET responses)           */
-/* ------------------------------------------------------------------ */
-
-/**
- * Return certifications with professor profile (from users).
- * Requires a FK professors.user_id -> users.user_id and read access.
- */
-export async function listCertificationsWithProfiles(
-  supabase: DB,
-  projectId: string
-): Promise<
-  Array<
-    CertificationRow & {
-      professor?: { user_id: string; fullname: string | null; profile_image_url: string | null };
-    }
-  >
-> {
-  const { data, error } = await supabase
-    .from("certifications")
-    .select(`
-      project_id,
-      professor_user_id,
-      certification_date,
-      professor:users!certifications_professor_user_id_fkey(
-        user_id,
-        fullname,
-        profile_image_url
-      )
-    `)
-    .eq("project_id", projectId)
-    .order("certification_date", { ascending: false });
-
-  if (error) throw error;
-
-  // TypeScript-friendly normalization
-  return (data ?? []).map((r: any) => ({
-    project_id: r.project_id,
-    professor_user_id: r.professor_user_id,
-    certification_date: r.certification_date,
-    professor: r.professor
-      ? {
-        user_id: r.professor.user_id,
-        fullname: r.professor.fullname ?? null,
-        profile_image_url: r.professor.profile_image_url ?? null,
-      }
-      : undefined,
-  }));
 }
