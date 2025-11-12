@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { IsoString, Uuid, IsoStringOptional } from "./validation";
+import { IsoString, IsoStringOptional, Uuid } from "./validation";
 
 describe("Validation utilities", () => {
   describe("IsoString", () => {

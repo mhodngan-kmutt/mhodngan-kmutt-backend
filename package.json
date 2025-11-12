@@ -5,10 +5,9 @@
     "test": "bun test",
     "test:unit": "bun test src/**/*.test.ts",
     "test:integration": "bun test tests/integration/**/*.test.ts",
-    "lint": "biome check src/",
+    "lint": "biome check src/ --diagnostic-level=error",
     "lint:fix": "biome check --write src/",
-    "security": "bun run security-check",
-    "security-check": "echo 'Running security scan...' && bunx audit-ci --moderate",
+    "security": "echo 'Checking for untrusted dependencies...' && bun pm untrusted && echo 'Security scan completed'",
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {

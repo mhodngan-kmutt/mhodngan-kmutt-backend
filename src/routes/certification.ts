@@ -1,16 +1,15 @@
 import { Elysia } from "elysia";
-import { supabase } from "../lib/supabase";
-import { AppError } from "../utils/errors";
-import { authenticateUser } from "../utils/auth";
-import {
-  ensureProjectExists,
-  ensureProfessor,
-  upsertCertification,
-  deleteMyCertification,
-  listCertificationsByProjectWithProfessor,
-
-} from "../services/certification";
 import * as t from "zod";
+import { supabase } from "../lib/supabase";
+import {
+  deleteMyCertification,
+  ensureProfessor,
+  ensureProjectExists,
+  listCertificationsByProjectWithProfessor,
+  upsertCertification,
+} from "../services/certification";
+import { authenticateUser } from "../utils/auth";
+import { AppError } from "../utils/errors";
 import { IsoStringOptional, Uuid } from "../utils/validation";
 
 export const certificationRoutes = new Elysia({ prefix: "/api" })
@@ -27,7 +26,9 @@ export const certificationRoutes = new Elysia({ prefix: "/api" })
 
       // Ensure the professor is certify by themselves
       if (userId !== body.professorUserId) {
-        throw AppError.forbidden("professorUserId must match authenticated user");
+        throw AppError.forbidden(
+          "professorUserId must match authenticated user",
+        );
       }
 
       await ensureProjectExists(supabase, body.projectId);
@@ -37,7 +38,7 @@ export const certificationRoutes = new Elysia({ prefix: "/api" })
         supabase,
         body.projectId,
         userId,
-        body.certificationDate
+        body.certificationDate,
       );
 
       return { success: true, data: row };
@@ -53,7 +54,7 @@ export const certificationRoutes = new Elysia({ prefix: "/api" })
         tags: ["Certifications"],
         security: [{ bearerAuth: [] }],
       },
-    }
+    },
   )
 
   // DELETE /api/certifications/:projectId/me
@@ -69,7 +70,7 @@ export const certificationRoutes = new Elysia({ prefix: "/api" })
       const res = await deleteMyCertification(
         supabase,
         params.projectId,
-        auth.user.id
+        auth.user.id,
       );
       return res;
     },
@@ -80,7 +81,7 @@ export const certificationRoutes = new Elysia({ prefix: "/api" })
         tags: ["Certifications"],
         security: [{ bearerAuth: [] }],
       },
-    }
+    },
   )
 
   // GET /api/projects/:projectId/certifications
@@ -88,7 +89,10 @@ export const certificationRoutes = new Elysia({ prefix: "/api" })
     "/projects/:projectId/certifications",
     async ({ params }) => {
       await ensureProjectExists(supabase, params.projectId);
-      const rows = await listCertificationsByProjectWithProfessor(supabase, params.projectId);
+      const rows = await listCertificationsByProjectWithProfessor(
+        supabase,
+        params.projectId,
+      );
       return { success: true, data: rows };
     },
     {
@@ -97,5 +101,5 @@ export const certificationRoutes = new Elysia({ prefix: "/api" })
         summary: "List certifying professors for a project",
         tags: ["Certifications"],
       },
-    }
+    },
   );

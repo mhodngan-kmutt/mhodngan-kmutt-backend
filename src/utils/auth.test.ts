@@ -1,14 +1,18 @@
-import { describe, expect, test, mock } from "bun:test";
-import { authenticateUser } from "./auth";
+import { describe, expect, mock, test } from "bun:test";
 
-// Mock supabase
+// Mock supabase BEFORE importing auth
 mock.module("../lib/supabase", () => ({
   supabase: {
     auth: {
-      getUser: mock(),
+      getUser: mock(() =>
+        Promise.resolve({ data: { user: null }, error: null }),
+      ),
     },
   },
 }));
+
+// Import after mock
+const { authenticateUser } = await import("./auth");
 
 describe("Authentication utilities", () => {
   describe("authenticateUser", () => {

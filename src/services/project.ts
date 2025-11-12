@@ -5,16 +5,14 @@ import {
   buildSelect,
   calcRange,
   mapProjectRow,
-  safeOrder,
   needsStatsData,
-  calcMonthlyStats,
-  calcYearlyStats,
+  safeOrder,
 } from "../utils/project.query";
 
 export async function getProjectById(
   supabase: SupabaseClient<Database>,
   id: string,
-  include: IncludeKey[] = ["categories", "links", "files"]
+  include: IncludeKey[] = ["categories", "links", "files"],
 ) {
   const { data, error } = await supabase
     .from("projects")
@@ -30,14 +28,16 @@ export async function getProjectById(
 
 export async function listProjects(
   supabase: SupabaseClient<Database>,
-  params: ListParams
+  params: ListParams,
 ) {
   const { p, take, fromIdx, toIdx } = calcRange(params.page, params.pageSize);
   const { field, ascending } = safeOrder(params.orderBy, params.order);
   const needStats = needsStatsData(params.orderBy);
 
   // Base query
-  let q = supabase.from("projects").select(buildSelect(params.include, needStats));
+  let q = supabase
+    .from("projects")
+    .select(buildSelect(params.include, needStats));
 
   // Search
   if (params.q)
@@ -57,38 +57,40 @@ export async function listProjects(
   if (params.contributors?.length) {
     q = q
       .select(
-        buildSelect(params.include, needStats) + ",project_contributors!inner(user_id)"
+        buildSelect(params.include, needStats) +
+          ",project_contributors!inner(user_id)",
       )
       .in("project_contributors.user_id", params.contributors);
   }
 
   // Pagination & sort
   // If ordering by stats, we need to sort in-memory after calculating stats
-  let result;
+  let result: { data: unknown[]; count: number; rows?: unknown[] };
   if (needStats) {
     // Get all matching records without pagination
     const { data, error, count } = await q;
     if (error) throw error;
 
     // Map and calculate stats for each row
-    let rows = (data ?? []).map((row) => {
+    const rows = (data ?? []).map((row) => {
       const mapped = mapProjectRow(row, params.include, true);
       return mapped;
     });
 
     // Sort in-memory based on the stats field
     rows.sort((a, b) => {
-      let aVal = 0, bVal = 0;
-      if (field === 'monthly_view_count') {
+      let aVal = 0,
+        bVal = 0;
+      if (field === "monthly_view_count") {
         aVal = a.monthlyViewCount ?? 0;
         bVal = b.monthlyViewCount ?? 0;
-      } else if (field === 'monthly_like_count') {
+      } else if (field === "monthly_like_count") {
         aVal = a.monthlyLikeCount ?? 0;
         bVal = b.monthlyLikeCount ?? 0;
-      } else if (field === 'yearly_view_count') {
+      } else if (field === "yearly_view_count") {
         aVal = a.yearlyViewCount ?? 0;
         bVal = b.yearlyViewCount ?? 0;
-      } else if (field === 'yearly_like_count') {
+      } else if (field === "yearly_like_count") {
         aVal = a.yearlyLikeCount ?? 0;
         bVal = b.yearlyLikeCount ?? 0;
       }
@@ -111,7 +113,9 @@ export async function listProjects(
 
     if (error) throw error;
 
-    const rows = (data ?? []).map((row) => mapProjectRow(row, params.include, false));
+    const rows = (data ?? []).map((row) =>
+      mapProjectRow(row, params.include, false),
+    );
     result = { data: rows, count: count ?? rows.length, rows };
   }
 
@@ -130,7 +134,7 @@ export async function listProjects(
 export async function getUserProjects(
   supabase: SupabaseClient<Database>,
   userId: string,
-  include: IncludeKey[] = ["categories", "links", "files"]
+  include: IncludeKey[] = ["categories", "links", "files"],
 ) {
   const { data, error } = await supabase
     .from("project_collaborators")
@@ -157,7 +161,7 @@ export async function createProject(
     preview_image_url?: string;
     short_description?: string;
     status?: "Draft" | "Published" | "Certified";
-  }
+  },
 ) {
   const { data: project, error: projectError } = await supabase
     .from("projects")
@@ -196,7 +200,7 @@ export async function updateProject(
     preview_image_url?: string;
     short_description?: string;
     status?: "Draft" | "Published" | "Certified";
-  }
+  },
 ) {
   const { data: collaborator } = await supabase
     .from("project_collaborators")
@@ -224,7 +228,7 @@ export async function updateProject(
 export async function deleteProject(
   supabase: SupabaseClient<Database>,
   projectId: string,
-  userId: string
+  userId: string,
 ) {
   const { data: collaborator } = await supabase
     .from("project_collaborators")
