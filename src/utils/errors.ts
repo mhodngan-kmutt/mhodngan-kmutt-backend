@@ -145,6 +145,8 @@ function mapStatusToCode(status: number): ErrorCode {
 }
 
 function isZodError(err: unknown): err is ZodError {
+  console.log(err as any);
+
   // Check for standard Zod error format
   if (!!err && typeof err === "object" && "issues" in (err as any)) {
     return true;
