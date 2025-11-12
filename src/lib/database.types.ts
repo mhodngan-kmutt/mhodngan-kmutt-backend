@@ -269,14 +269,17 @@ export type Database = {
       }
       project_external_links: {
         Row: {
+          link_id: string
           link_url: string
           project_id: string
         }
         Insert: {
+          link_id?: string
           link_url: string
           project_id: string
         }
         Update: {
+          link_id?: string
           link_url?: string
           project_id?: string
         }

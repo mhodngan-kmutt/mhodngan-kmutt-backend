@@ -7,7 +7,8 @@ import {
   ensureProfessor,
   upsertCertification,
   deleteMyCertification,
-  listCertificationsByProject,
+  listCertificationsByProjectWithProfessor,
+
 } from "../services/certification";
 import * as t from "zod";
 import { IsoStringOptional, Uuid } from "../utils/validation";
@@ -87,7 +88,7 @@ export const certificationRoutes = new Elysia({ prefix: "/api" })
     "/projects/:projectId/certifications",
     async ({ params }) => {
       await ensureProjectExists(supabase, params.projectId);
-      const rows = await listCertificationsByProject(supabase, params.projectId);
+      const rows = await listCertificationsByProjectWithProfessor(supabase, params.projectId);
       return { success: true, data: rows };
     },
     {
