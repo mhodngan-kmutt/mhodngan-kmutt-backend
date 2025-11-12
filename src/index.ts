@@ -3,10 +3,10 @@ import { openapi } from "@elysiajs/openapi";
 import { Elysia } from "elysia";
 import { openapiConfig } from "./config/openapi";
 import { certificationRoutes } from "./routes/certification";
+import { commentRoutes, projectCommentRoutes } from "./routes/comment";
 import { projectRoutes } from "./routes/project";
 import { userRoutes } from "./routes/user";
 import { viewRoutes } from "./routes/view";
-import { commentRoutes } from "./routes/comment";
 import { handleError } from "./utils/errors";
 
 const PORT = Number(process.env.PORT ?? 3000);
@@ -21,6 +21,7 @@ const app = new Elysia()
   .use(userRoutes)
   .use(viewRoutes)
   .use(commentRoutes)
+  .use(projectCommentRoutes)
   .listen(PORT);
 
 console.log(
