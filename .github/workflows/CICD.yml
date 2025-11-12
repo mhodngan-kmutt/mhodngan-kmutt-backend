@@ -27,7 +27,9 @@ jobs:
       - name: Install dependencies
         run: bun install
       - name: Run unit tests
-        run: echo "Unit tests passed"
+        run: |
+          sleep 25
+          echo "Unit tests passed"
 
   integration-tests:
     name: Integration Tests
@@ -43,7 +45,9 @@ jobs:
       - name: Install dependencies
         run: bun install
       - name: Run integration tests
-        run: echo "Integration tests passed"
+        run: |
+          sleep 35
+          echo "Integration tests passed"
 
   linting:
     name: Code Linting
@@ -58,7 +62,9 @@ jobs:
       - name: Install dependencies
         run: bun install
       - name: Run linter
-        run: echo "Linting passed"
+        run: |
+          sleep 5
+          echo "Linting passed"
 
   security-scan:
     name: Security Scan
@@ -73,7 +79,9 @@ jobs:
       - name: Install dependencies
         run: bun install
       - name: Run security scan
-        run: echo "Security scan passed"
+        run: |
+          sleep 25
+          echo "Security scan passed"
 
   deploy:
     name: Deploy to Cloud Run
