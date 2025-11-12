@@ -21,7 +21,7 @@ export class AppError extends Error {
   constructor(
     status: number,
     message: string,
-    options?: { code?: ErrorCode; details?: unknown }
+    options?: { code?: ErrorCode; details?: unknown },
   ) {
     super(message);
     this.status = status;
@@ -58,7 +58,7 @@ export class AppError extends Error {
 export function handleError(
   ctx: { set: { status?: number | string } } | Context,
   error: unknown,
-  fallbackMessage = "An unexpected error occurred"
+  fallbackMessage = "An unexpected error occurred",
 ) {
   const isNotFoundError =
     error &&

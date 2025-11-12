@@ -3,7 +3,7 @@ import type { Database } from "../lib/database.types";
 
 export async function getUserByProfile(
   supabase: SupabaseClient<Database>,
-  userId: string
+  userId: string,
 ) {
   const { data, error } = await supabase
     .from("users")

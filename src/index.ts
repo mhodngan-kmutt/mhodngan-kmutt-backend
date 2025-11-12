@@ -1,12 +1,13 @@
-import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { openapi } from "@elysiajs/openapi";
-import { projectRoutes } from "./routes/project";
-import { certificationRoutes } from "./routes/certification";
-import { handleError } from "./utils/errors";
+import { Elysia } from "elysia";
 import { openapiConfig } from "./config/openapi";
+import { certificationRoutes } from "./routes/certification";
+import { projectRoutes } from "./routes/project";
 import { userRoutes } from "./routes/user";
 import { viewRoutes } from "./routes/view";
+import { commentRoutes } from "./routes/comment";
+import { handleError } from "./utils/errors";
 
 const PORT = Number(process.env.PORT ?? 3000);
 
@@ -19,8 +20,9 @@ const app = new Elysia()
   .use(certificationRoutes)
   .use(userRoutes)
   .use(viewRoutes)
+  .use(commentRoutes)
   .listen(PORT);
 
 console.log(
-  `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port} (docs at /docs)`
+  `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port} (docs at /docs)`,
 );

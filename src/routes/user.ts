@@ -1,9 +1,9 @@
 import Elysia from "elysia";
 import { supabase } from "../lib/supabase";
-import { AppError } from "../utils/errors";
 import { UserProfileResSchema } from "../models/user";
 import { getUserByProfile } from "../services/user";
 import { authenticateUser } from "../utils/auth";
+import { AppError } from "../utils/errors";
 
 export const userRoutes = new Elysia({ prefix: "/user" })
   // Get authenticated user's profile
@@ -39,5 +39,5 @@ export const userRoutes = new Elysia({ prefix: "/user" })
         tags: ["Users"],
         security: [{ bearerAuth: [] }],
       },
-    }
+    },
   );

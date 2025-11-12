@@ -1,23 +1,23 @@
 import Elysia from "elysia";
 import { supabase } from "../lib/supabase";
-import { AppError } from "../utils/errors";
 import {
-  ProjectListQuerySchema,
-  ProjectIdParamsSchema,
-  ProjectDetailsResSchema,
   CreateProjectBodySchema,
+  ProjectDetailsResSchema,
+  ProjectIdParamsSchema,
+  ProjectListQuerySchema,
   UpdateProjectBodySchema,
 } from "../models/project";
-import { csv, type IncludeKey } from "../utils/project.query";
 import {
-  getProjectById,
-  listProjects,
-  getUserProjects,
   createProject,
-  updateProject,
   deleteProject,
+  getProjectById,
+  getUserProjects,
+  listProjects,
+  updateProject,
 } from "../services/project";
 import { authenticateUser } from "../utils/auth";
+import { AppError } from "../utils/errors";
+import { csv, type IncludeKey } from "../utils/project.query";
 
 export const projectRoutes = new Elysia({ prefix: "/project" })
   // Get all projects with optional filters
@@ -25,9 +25,7 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
     "/",
     async ({ query }) => {
       const include = (
-        Array.isArray(query.include)
-          ? query.include
-          : csv(query.include)
+        Array.isArray(query.include) ? query.include : csv(query.include)
       ) as IncludeKey[];
       const statusList = csv(query.status);
 
@@ -55,7 +53,7 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
           "Retrieve a paginated list of projects. Defaults to 'Published' status only. Supports filtering by status, badge, search query, contributors, and date range. Supports sorting and customizable includes (categories, links, files, contributors). Default includes: categories, links, files, contributors. Public access.",
         tags: ["Projects"],
       },
-    }
+    },
   )
 
   // Get authenticated user's projects
@@ -82,7 +80,7 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
         tags: ["Projects"],
         security: [{ bearerAuth: [] }],
       },
-    }
+    },
   )
 
   // Get project details by ID
@@ -90,9 +88,7 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
     "/:id",
     async ({ params, query }) => {
       const include = (
-        Array.isArray(query.include)
-          ? query.include
-          : csv(query.include)
+        Array.isArray(query.include) ? query.include : csv(query.include)
       ) as IncludeKey[];
 
       const project = await getProjectById(
@@ -100,7 +96,7 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
         params.id,
         include.length
           ? include
-          : ["categories", "links", "files", "contributors"]
+          : ["categories", "links", "files", "contributors"],
       );
       if (!project) throw AppError.notFound("Project not found");
 
@@ -115,7 +111,7 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
           "Retrieve detailed information about a specific project by ID. Supports optional includes: categories, links, files, contributors. Default: categories, links, files. Public access.",
         tags: ["Projects"],
       },
-    }
+    },
   )
 
   // Create new project
@@ -141,7 +137,7 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
         tags: ["Projects"],
         security: [{ bearerAuth: [] }],
       },
-    }
+    },
   )
 
   // Update existing project
@@ -159,7 +155,7 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
           supabase,
           params.id,
           auth.user.id,
-          body
+          body,
         );
 
         return project;
@@ -183,7 +179,7 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
         tags: ["Projects"],
         security: [{ bearerAuth: [] }],
       },
-    }
+    },
   )
 
   // Delete project
@@ -219,5 +215,5 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
         tags: ["Projects"],
         security: [{ bearerAuth: [] }],
       },
-    }
+    },
   );
