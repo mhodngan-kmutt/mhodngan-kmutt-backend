@@ -10,20 +10,17 @@ type RowUser = Database["public"]["Tables"]["users"]["Row"];
 
 export type CertificationRow = RowCert;
 
-export type CertificationWithProfessorUser =
-  RowCert & { professor: (RowProf & { user: RowUser | null }) | null };
+export type CertificationWithProfessorUser = RowCert & {
+  professor: (RowProf & { user: RowUser | null }) | null;
+};
 
-export type ProjectStatus =
-  Database["public"]["Enums"]["project_status"]; // "Draft" | "Published" | "Certified"
+export type ProjectStatus = Database["public"]["Enums"]["project_status"]; // "Draft" | "Published" | "Certified"
 
 /* ------------------------------------------------------------------ */
 /* Basic guards                                                        */
 /* ------------------------------------------------------------------ */
 
-export async function ensureProjectExists(
-  supabase: DB,
-  projectId: string
-) {
+export async function ensureProjectExists(supabase: DB, projectId: string) {
   const { data, error } = await supabase
     .from("projects")
     .select("project_id")
@@ -34,10 +31,7 @@ export async function ensureProjectExists(
   if (!data) throw new Error("Project not found");
 }
 
-export async function ensureProfessor(
-  supabase: DB,
-  userId: string
-) {
+export async function ensureProfessor(supabase: DB, userId: string) {
   const { data, error } = await supabase
     .from("professors")
     .select("user_id")
@@ -60,7 +54,7 @@ export async function upsertCertification(
   supabase: DB,
   projectId: string,
   professorUserId: string,
-  certificationDate?: string
+  certificationDate?: string,
 ): Promise<CertificationRow> {
   const { data, error } = await supabase
     .from("certifications")
@@ -70,7 +64,7 @@ export async function upsertCertification(
         professor_user_id: professorUserId,
         certification_date: certificationDate ?? new Date().toISOString(),
       },
-      { onConflict: "project_id,professor_user_id", ignoreDuplicates: false }
+      { onConflict: "project_id,professor_user_id", ignoreDuplicates: false },
     )
     .select("*")
     .maybeSingle();
@@ -83,7 +77,7 @@ export async function upsertCertification(
 export async function deleteMyCertification(
   supabase: DB,
   projectId: string,
-  professorUserId: string
+  professorUserId: string,
 ) {
   const { error } = await supabase
     .from("certifications")
@@ -97,7 +91,7 @@ export async function deleteMyCertification(
 
 export async function listCertificationsByProjectWithProfessor(
   supabase: DB,
-  projectId: string
+  projectId: string,
 ): Promise<{ count: number; data: CertificationWithProfessorUser[] }> {
   const { data, count, error } = await supabase
     .from("certifications")
@@ -109,18 +103,17 @@ export async function listCertificationsByProjectWithProfessor(
         user:users(*)
       )
     `,
-      { count: "exact" } // enables returning total count
+      { count: "exact" }, // enables returning total count
     )
     .eq("project_id", projectId)
     .order("certification_date", { ascending: false });
 
   if (error) throw error;
-  return { 
-    count: count ?? 0, 
-    data: (data ?? []) as CertificationWithProfessorUser[] 
+  return {
+    count: count ?? 0,
+    data: (data ?? []) as CertificationWithProfessorUser[],
   };
 }
-
 
 /* ------------------------------------------------------------------ */
 /* Helpers for auto-status logic                                       */
@@ -128,7 +121,7 @@ export async function listCertificationsByProjectWithProfessor(
 
 export async function countProjectCerts(
   supabase: DB,
-  projectId: string
+  projectId: string,
 ): Promise<number> {
   const { count, error } = await supabase
     .from("certifications")
@@ -142,7 +135,7 @@ export async function countProjectCerts(
 export async function setProjectStatus(
   supabase: DB,
   projectId: string,
-  status: ProjectStatus
+  status: ProjectStatus,
 ): Promise<void> {
   const { error } = await supabase
     .from("projects")
@@ -160,16 +153,16 @@ export async function upsertCertificationWithAutoStatus(
   supabase: DB,
   projectId: string,
   professorUserId: string,
-  certificationDate?: string
+  certificationDate?: string,
 ): Promise<{ row: CertificationRow; statusUpdated?: ProjectStatus }> {
   const row = await upsertCertification(
     supabase,
     projectId,
     professorUserId,
-    certificationDate
+    certificationDate,
   );
 
-  let statusUpdated: ProjectStatus | undefined = undefined;
+  let statusUpdated: ProjectStatus | undefined;
 
   try {
     const total = await countProjectCerts(supabase, projectId);
@@ -191,11 +184,15 @@ export async function upsertCertificationWithAutoStatus(
 export async function deleteMyCertificationWithAutoStatus(
   supabase: DB,
   projectId: string,
-  professorUserId: string
+  professorUserId: string,
 ): Promise<{ success: true; statusUpdated?: ProjectStatus }> {
-  const res = await deleteMyCertification(supabase, projectId, professorUserId);
+  const _res = await deleteMyCertification(
+    supabase,
+    projectId,
+    professorUserId,
+  );
 
-  let statusUpdated: ProjectStatus | undefined = undefined;
+  let statusUpdated: ProjectStatus | undefined;
 
   try {
     const total = await countProjectCerts(supabase, projectId);

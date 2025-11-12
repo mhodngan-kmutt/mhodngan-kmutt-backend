@@ -10,13 +10,11 @@ export const IsoString = z.string().refine(
   },
   {
     message: "Must be a valid ISO datetime string",
-  }
+  },
 );
-
 
 // UUID validator shortcut
 export const Uuid = z.string().uuid();
 
 // Optional ISO string (used for optional timestamps)
 export const IsoStringOptional = IsoString.optional();
-

@@ -1,5 +1,5 @@
-import { supabase } from "../lib/supabase";
 import type { User } from "@supabase/supabase-js";
+import { supabase } from "../lib/supabase";
 
 type AuthSuccess = {
   success: true;
@@ -18,7 +18,7 @@ type AuthError = {
 export type AuthResult = AuthSuccess | AuthError;
 
 export async function authenticateUser(
-  authHeader: string | undefined
+  authHeader: string | undefined,
 ): Promise<AuthResult> {
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return {
