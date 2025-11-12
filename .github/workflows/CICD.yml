@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: bun install
       - name: Run unit tests
-        run: bun test src/**/*.test.ts
+        run: bun test ./src/**/*.test.ts
 
   integration-tests:
     name: Integration Tests
@@ -49,7 +49,7 @@ jobs:
       - name: Install dependencies
         run: bun install
       - name: Run integration tests
-        run: bun test tests/integration/**/*.test.ts
+        run: bun test ./tests/integration/**/*.test.ts
 
   linting:
     name: Code Linting
