@@ -28,7 +28,7 @@ jobs:
         run: bun install
       - name: Run unit tests
         run: |
-          sleep 25
+          sleep 35
           echo "Unit tests passed"
 
   integration-tests:
@@ -46,7 +46,7 @@ jobs:
         run: bun install
       - name: Run integration tests
         run: |
-          sleep 35
+          sleep 55
           echo "Integration tests passed"
 
   linting:
@@ -80,7 +80,7 @@ jobs:
         run: bun install
       - name: Run security scan
         run: |
-          sleep 25
+          sleep 45
           echo "Security scan passed"
 
   deploy:
