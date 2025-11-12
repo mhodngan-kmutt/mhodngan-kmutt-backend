@@ -6,6 +6,7 @@ import { certificationRoutes } from "./routes/certification";
 import { handleError } from "./utils/errors";
 import { openapiConfig } from "./config/openapi";
 import { userRoutes } from "./routes/user";
+import { commentRoutes } from "./routes/comment";
 
 const PORT = Number(process.env.PORT ?? 3000);
 
@@ -17,6 +18,7 @@ const app = new Elysia()
   .use(projectRoutes)
   .use(certificationRoutes)
   .use(userRoutes)
+  .use(commentRoutes)
   .listen(PORT);
 
 console.log(
