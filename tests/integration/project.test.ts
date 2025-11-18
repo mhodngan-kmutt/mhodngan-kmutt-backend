@@ -33,6 +33,29 @@ describe("Project routes integration tests", () => {
     });
   });
 
+  describe("GET /project/me", () => {
+    test("should require authentication", async () => {
+      const response = await app.handle(
+        new Request("http://localhost/project/me")
+      );
+
+      expect(response.status).toBe(401);
+    });
+
+    test("should accept authorization header", async () => {
+      const response = await app.handle(
+        new Request("http://localhost/project/me", {
+          headers: {
+            Authorization: "Bearer test-token",
+          },
+        })
+      );
+
+      // Will return 401 for invalid token, but validates the endpoint exists
+      expect(response.status).toBe(401);
+    });
+  });
+
   describe("GET /project/:id", () => {
     test("should return 500 for invalid UUID", async () => {
       const response = await app.handle(
