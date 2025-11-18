@@ -81,7 +81,7 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
         tags: ["Projects"],
         security: [{ bearerAuth: [] }],
       },
-    },
+    }, 
   )
 
   // Get project details by ID
