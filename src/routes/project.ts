@@ -70,13 +70,14 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
         "categories",
         "links",
         "files",
+        "contributors",
       ]);
     },
     {
       detail: {
         summary: "Get my projects",
         description:
-          "Retrieve all projects where the authenticated user is a collaborator. Requires authentication.",
+          "Retrieve all projects where the authenticated user is a collaborator. Includes categories, links, files, and contributors. Requires authentication.",
         tags: ["Projects"],
         security: [{ bearerAuth: [] }],
       },
