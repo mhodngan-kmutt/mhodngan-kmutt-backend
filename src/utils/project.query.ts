@@ -253,21 +253,18 @@ export function mapProjectRow(
   }
 
   // Always include certification data (if exists)
-  const certification = row.certifications?.[0];
-  if (certification?.professor) {
-    result.certifiedBy = {
-      userId: certification.professor.user_id,
-      fullname: certification.professor.user?.fullname,
-      email: certification.professor.user?.email,
-      profileImageUrl: certification.professor.user?.profile_image_url ?? null,
-      position: certification.professor.position,
-      department: certification.professor.department,
-      faculty: certification.professor.faculty,
-      certificationDate: certification.certification_date,
-    };
-  } else {
-    result.certifiedBy = null;
-  }
+  result.certifiedBy = (row.certifications ?? [])
+    .filter((cert: any) => cert?.professor)
+    .map((cert: any) => ({
+      userId: cert.professor.user_id,
+      fullname: cert.professor.user?.fullname,
+      email: cert.professor.user?.email,
+      profileImageUrl: cert.professor.user?.profile_image_url ?? null,
+      position: cert.professor.position,
+      department: cert.professor.department,
+      faculty: cert.professor.faculty,
+      certificationDate: cert.certification_date,
+    }));
 
   return result;
 }
