@@ -97,7 +97,7 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
         params.id,
         include.length
           ? include
-          : ["categories", "links", "files", "contributors"],
+          : ["categories", "links", "files", "contributors", "comments"],
       );
       if (!project) throw AppError.notFound("Project not found");
 

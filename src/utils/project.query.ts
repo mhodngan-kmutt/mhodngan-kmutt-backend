@@ -1,5 +1,5 @@
 /** Supported include flags for projects */
-export type IncludeKey = "categories" | "links" | "files" | "contributors";
+export type IncludeKey = "categories" | "links" | "files" | "contributors" | "comments";
 
 /** Split CSV query parameters into string[] */
 export const csv = (v?: string) =>
@@ -79,6 +79,23 @@ export function buildSelect(includeList: IncludeKey[], withStats = false) {
     include.push(`
       project_collaborators(
         contributor:users(
+          user_id,
+          username,
+          fullname,
+          email,
+          profile_image_url,
+          role
+        )
+      )
+    `);
+  }
+  if (includeList.includes("comments")) {
+    include.push(`
+      comments(
+        comment_id,
+        message,
+        commented_at,
+        user:users(
           user_id,
           username,
           fullname,
@@ -250,6 +267,24 @@ export function mapProjectRow(
         profileImageUrl: c.profile_image_url ?? null,
         role: c.role,
       }));
+  }
+
+  if (includeList?.includes("comments")) {
+    result.comments = (row.comments ?? []).map((c: any) => ({
+      commentId: c.comment_id,
+      message: c.message,
+      commentedAt: c.commented_at,
+      user: c.user
+        ? {
+            userId: c.user.user_id,
+            username: c.user.username,
+            fullname: c.user.fullname,
+            email: c.user.email,
+            profileImageUrl: c.user.profile_image_url ?? null,
+            role: c.user.role,
+          }
+        : null,
+    }));
   }
 
   // Always include certification data (if exists)
