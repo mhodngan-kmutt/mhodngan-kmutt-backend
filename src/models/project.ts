@@ -43,6 +43,22 @@ export const ProjectIdParamsSchema = z.object({
   id: z.string(),
 });
 
+const CommentSchema = z.object({
+  commentId: z.string().uuid(),
+  message: z.string(),
+  commentedAt: z.string(),
+  user: z
+    .object({
+      userId: z.string().uuid(),
+      username: z.string().nullable(),
+      fullname: z.string().nullable(),
+      email: z.string().email().nullable(),
+      profileImageUrl: z.string().url().nullable(),
+      role: z.string(),
+    })
+    .nullable(),
+});
+
 export const ProjectDetailsResSchema = z.object({
   projectId: z.string(),
   title: z.string(),
@@ -80,6 +96,7 @@ export const ProjectDetailsResSchema = z.object({
       }),
     )
     .default([]),
+  comments: z.array(CommentSchema).optional(),
   certifiedBy: z
     .array(
       z.object({
