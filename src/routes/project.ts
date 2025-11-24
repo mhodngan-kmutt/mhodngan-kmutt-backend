@@ -15,6 +15,7 @@ import {
   listProjects,
   updateProject,
 } from "../services/project";
+import { toggleLike } from "../services/like";
 import { authenticateUser } from "../utils/auth";
 import { AppError } from "../utils/errors";
 import { csv, type IncludeKey } from "../utils/project.query";
@@ -213,6 +214,35 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
         summary: "Delete project",
         description:
           "Delete an existing project. Only collaborators can delete. Requires authentication.",
+        tags: ["Projects"],
+        security: [{ bearerAuth: [] }],
+      },
+    },
+  )
+
+  // Toggle like for a project
+  .post(
+    "/:id/like",
+    async ({ headers, params }) => {
+      const auth = await authenticateUser(headers.authorization);
+
+      if (!auth.success) {
+        throw AppError.unauthorized(auth.error.message);
+      }
+
+      const result = await toggleLike(supabase, {
+        user_id: auth.user.id,
+        project_id: params.id,
+      });
+
+      return result;
+    },
+    {
+      params: ProjectIdParamsSchema,
+      detail: {
+        summary: "Toggle project like",
+        description:
+          "Like or unlike a project. If the user has already liked the project, it will be unliked. If not, it will be liked. Requires authentication.",
         tags: ["Projects"],
         security: [{ bearerAuth: [] }],
       },

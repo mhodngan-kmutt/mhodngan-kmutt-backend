@@ -25,5 +25,5 @@ const app = new Elysia()
   .listen(PORT);
 
 console.log(
-  `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port} (docs at /docs)`,
+  `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port} (docs at /docs)`
 );
