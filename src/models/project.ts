@@ -113,6 +113,17 @@ export const ProjectDetailsResSchema = z.object({
     .default([]),
   likeCount: z.number(),
   viewCount: z.number(),
+  isLikedByCurrentUser: z.boolean().default(false),
+  likedByUsers: z
+    .array(
+      z.object({
+        userId: z.string(),
+        username: z.string().nullable(),
+        fullname: z.string(),
+        profileImageUrl: z.string().nullable(),
+      }),
+    )
+    .default([]),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

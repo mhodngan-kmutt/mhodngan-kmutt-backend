@@ -125,6 +125,18 @@ export function buildSelect(includeList: IncludeKey[], withStats = false) {
     )
   `);
 
+  // Always include likes data
+  include.push(`
+    likes(
+      user:users(
+        user_id,
+        username,
+        fullname,
+        profile_image_url
+      )
+    )
+  `);
+
   return [base, ...include].join(",");
 }
 
@@ -205,6 +217,7 @@ export function mapProjectRow(
   row: any,
   includeList?: IncludeKey[],
   withStats = false,
+  currentUserId?: string,
 ) {
   const result: any = {
     projectId: row.project_id,
@@ -300,6 +313,21 @@ export function mapProjectRow(
       faculty: cert.professor.faculty,
       certificationDate: cert.certification_date,
     }));
+
+  // Always include like data
+  const likes = (row.likes ?? [])
+    .filter((like: any) => like?.user)
+    .map((like: any) => ({
+      userId: like.user.user_id,
+      username: like.user.username ?? null,
+      fullname: like.user.fullname,
+      profileImageUrl: like.user.profile_image_url ?? null,
+    }));
+
+  result.likedByUsers = likes;
+  result.isLikedByCurrentUser = currentUserId
+    ? likes.some((like: any) => like.userId === currentUserId)
+    : false;
 
   return result;
 }

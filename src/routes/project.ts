@@ -88,10 +88,19 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
   // Get project details by ID
   .get(
     "/:id",
-    async ({ params, query }) => {
+    async ({ params, query, headers }) => {
       const include = (
         Array.isArray(query.include) ? query.include : csv(query.include)
       ) as IncludeKey[];
+
+      // Optional authentication - if token exists, get user ID
+      let currentUserId: string | undefined;
+      if (headers.authorization) {
+        const auth = await authenticateUser(headers.authorization);
+        if (auth.success) {
+          currentUserId = auth.user.id;
+        }
+      }
 
       const project = await getProjectById(
         supabase,
@@ -99,6 +108,7 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
         include.length
           ? include
           : ["categories", "links", "files", "contributors", "comments"],
+        currentUserId,
       );
       if (!project) throw AppError.notFound("Project not found");
 
@@ -110,7 +120,7 @@ export const projectRoutes = new Elysia({ prefix: "/project" })
       detail: {
         summary: "Get project details by ID",
         description:
-          "Retrieve detailed information about a specific project by ID. Supports optional includes: categories, links, files, contributors. Default: categories, links, files. Public access.",
+          "Retrieve detailed information about a specific project by ID. Includes like information (likedByUsers, isLikedByCurrentUser). Authentication is optional - if provided, isLikedByCurrentUser will be true/false; otherwise defaults to false. Supports optional includes: categories, links, files, contributors, comments. Default: categories, links, files, contributors, comments. Public access.",
         tags: ["Projects"],
       },
     },
