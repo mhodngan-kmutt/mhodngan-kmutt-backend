@@ -363,6 +363,7 @@ export type Database = {
           comment_count: number | null
           content: string
           created_at: string | null
+          deleted_at: string | null
           like_count: number | null
           preview_image_url: string | null
           project_id: string
@@ -377,6 +378,7 @@ export type Database = {
           comment_count?: number | null
           content: string
           created_at?: string | null
+          deleted_at?: string | null
           like_count?: number | null
           preview_image_url?: string | null
           project_id?: string
@@ -391,6 +393,7 @@ export type Database = {
           comment_count?: number | null
           content?: string
           created_at?: string | null
+          deleted_at?: string | null
           like_count?: number | null
           preview_image_url?: string | null
           project_id?: string

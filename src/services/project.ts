@@ -13,17 +13,19 @@ export async function getProjectById(
   supabase: SupabaseClient<Database>,
   id: string,
   include: IncludeKey[] = ["categories", "links", "files"],
+  currentUserId?: string,
 ) {
   const { data, error } = await supabase
     .from("projects")
     .select(buildSelect(include))
     .eq("project_id", id)
+    .is("deleted_at", null)
     .maybeSingle();
 
   if (error) throw error;
   if (!data) return null;
 
-  return mapProjectRow(data, include);
+  return mapProjectRow(data, include, false, currentUserId);
 }
 
 export async function listProjects(
@@ -34,10 +36,11 @@ export async function listProjects(
   const { field, ascending } = safeOrder(params.orderBy, params.order);
   const needStats = needsStatsData(params.orderBy);
 
-  // Base query
+  // Base query - exclude soft deleted projects
   let q = supabase
     .from("projects")
-    .select(buildSelect(params.include, needStats));
+    .select(buildSelect(params.include, needStats))
+    .is("deleted_at", null);
 
   // Search
   if (params.q)
@@ -138,8 +141,9 @@ export async function getUserProjects(
 ) {
   const { data, error } = await supabase
     .from("project_collaborators")
-    .select(`projects(${buildSelect(include)})`)
-    .eq("contributor_user_id", userId);
+    .select(`projects!inner(${buildSelect(include)})`)
+    .eq("contributor_user_id", userId)
+    .is("projects.deleted_at", null);
 
   if (error) throw error;
 
@@ -241,9 +245,10 @@ export async function deleteProject(
     throw new Error("You don't have permission to delete this project");
   }
 
+  // Soft delete: set deleted_at to now
   const { error } = await supabase
     .from("projects")
-    .delete()
+    .update({ deleted_at: new Date().toISOString() } as any)
     .eq("project_id", projectId);
 
   if (error) throw error;
