@@ -6,7 +6,7 @@ export const UserProfileResSchema = z.object({
   fullname: z.string(),
   email: z.string(),
   profileImageUrl: z.string().nullable(),
-  role: z.enum(["admin", "contributor", "visitor"]),
+  role: z.enum(["professor", "contributor", "visitor"]),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
