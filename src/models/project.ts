@@ -29,13 +29,13 @@ export const ProjectListQuerySchema = z.object({
         .string()
         .regex(
           /^(categories|links|files|contributors)(,(categories|links|files|contributors))*$/,
-          "Invalid include format",
+          "Invalid include format"
         ),
       z.array(z.enum(["categories", "links", "files", "contributors"])),
     ])
     .optional()
     .describe(
-      "Comma-separated list of relations to include. Allowed values: categories, links, files, contributors. Example: categories,links,files,contributors",
+      "Comma-separated list of relations to include. Allowed values: categories, links, files, contributors. Example: categories,links,files,contributors"
     ),
 });
 
@@ -72,7 +72,7 @@ export const ProjectDetailsResSchema = z.object({
       z.object({
         categoryId: z.string(),
         categoryName: z.string(),
-      }),
+      })
     )
     .default([]),
   externalLinks: z.array(z.string()).default([]),
@@ -81,7 +81,7 @@ export const ProjectDetailsResSchema = z.object({
       z.object({
         fileId: z.string(),
         fileUrl: z.string(),
-      }),
+      })
     )
     .default([]),
   contributors: z
@@ -92,8 +92,8 @@ export const ProjectDetailsResSchema = z.object({
         fullname: z.string(),
         email: z.string(),
         profileImageUrl: z.string().nullable(),
-        role: z.enum(["admin", "contributor", "visitor"]),
-      }),
+        role: z.enum(["professor", "contributor", "visitor"]),
+      })
     )
     .default([]),
   comments: z.array(CommentSchema).optional(),
@@ -108,7 +108,7 @@ export const ProjectDetailsResSchema = z.object({
         department: z.string(),
         faculty: z.string(),
         certificationDate: z.string(),
-      }),
+      })
     )
     .default([]),
   likeCount: z.number(),
@@ -121,7 +121,7 @@ export const ProjectDetailsResSchema = z.object({
         username: z.string().nullable(),
         fullname: z.string(),
         profileImageUrl: z.string().nullable(),
-      }),
+      })
     )
     .default([]),
   createdAt: z.string(),
