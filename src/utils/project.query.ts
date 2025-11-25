@@ -164,16 +164,25 @@ export function calcRange(page: number, pageSize: number) {
   return { p, take, fromIdx, toIdx };
 }
 
-/** Calculate monthly stats (last 30 days) from stats array */
+/**
+ * Calculate monthly stats for the previous calendar month.
+ * Expects monthlyStats items to have a `month` field in "YYYY-MM" format.
+ */
 export function calcMonthlyStats(monthlyStats: any[]) {
   const now = new Date();
-  const thirtyDaysAgo = new Date(now);
-  thirtyDaysAgo.setDate(now.getDate() - 30);
+  // previous calendar month: if now is January, previous month is December of previous year
+  const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevYear = prevMonthDate.getFullYear();
+  const prevMonth = prevMonthDate.getMonth() + 1; // 1-based month
 
   const stats = (monthlyStats ?? []).filter((s: any) => {
-    if (!s.month) return false;
-    const monthDate = new Date(`${s.month}-01`);
-    return monthDate >= thirtyDaysAgo;
+    if (!s?.month) return false;
+    const parts = String(s.month).split("-");
+    if (parts.length < 2) return false;
+    const y = Number(parts[0]);
+    const m = Number(parts[1]);
+    if (Number.isNaN(y) || Number.isNaN(m)) return false;
+    return y === prevYear && m === prevMonth;
   });
 
   return {
@@ -188,16 +197,22 @@ export function calcMonthlyStats(monthlyStats: any[]) {
   };
 }
 
-/** Calculate yearly stats (last 365 days) from stats array */
+/**
+ * Calculate yearly stats for the previous calendar year.
+ * Expects yearlyStats items to have a `month` field in "YYYY-MM" format.
+ * Includes all months that belong to the previous year.
+ */
 export function calcYearlyStats(yearlyStats: any[]) {
   const now = new Date();
-  const oneYearAgo = new Date(now);
-  oneYearAgo.setDate(now.getDate() - 365);
+  const prevYear = now.getFullYear() - 1;
 
   const stats = (yearlyStats ?? []).filter((s: any) => {
-    if (!s.month) return false;
-    const monthDate = new Date(`${s.month}-01`);
-    return monthDate >= oneYearAgo;
+    if (!s?.month) return false;
+    const parts = String(s.month).split("-");
+    if (parts.length < 1) return false;
+    const y = Number(parts[0]);
+    if (Number.isNaN(y)) return false;
+    return y === prevYear;
   });
 
   return {
