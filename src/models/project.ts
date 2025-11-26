@@ -124,6 +124,19 @@ export const ProjectDetailsResSchema = z.object({
       })
     )
     .default([]),
+  relatedProjects: z
+    .array(
+      z.object({
+        projectId: z.string(),
+        title: z.string(),
+        badge: z.string(),
+        previewImageUrl: z.string().nullable(),
+        shortDescription: z.string().nullable(),
+        likeCount: z.number(),
+        viewCount: z.number(),
+      })
+    )
+    .default([]),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

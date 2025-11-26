@@ -13,7 +13,7 @@ export async function getProjectById(
   supabase: SupabaseClient<Database>,
   id: string,
   include: IncludeKey[] = ["categories", "links", "files"],
-  currentUserId?: string,
+  currentUserId?: string
 ) {
   const { data, error } = await supabase
     .from("projects")
@@ -25,12 +25,57 @@ export async function getProjectById(
   if (error) throw error;
   if (!data) return null;
 
-  return mapProjectRow(data, include, false, currentUserId);
+  const project = mapProjectRow(data, include, false, currentUserId);
+
+  // Fetch related projects based on matching categories
+  let relatedProjects: any[] = [];
+  if (include.includes("categories") && project.categories?.length) {
+    const categoryIds = project.categories.map((c: any) => c.categoryId);
+
+    // Get projects that share at least one category
+    const { data: relatedData } = await supabase
+      .from("projects")
+      .select(
+        `
+        project_id,
+        title,
+        badge,
+        preview_image_url,
+        short_description,
+        like_count,
+        view_count,
+        project_categories!inner(category_id)
+      `
+      )
+      .in("project_categories.category_id", categoryIds)
+      .neq("project_id", id)
+      .eq("status", "Published")
+      .is("deleted_at", null)
+      .order("like_count", { ascending: false })
+      .limit(8);
+
+    if (relatedData) {
+      relatedProjects = relatedData.map((p: any) => ({
+        projectId: p.project_id,
+        title: p.title,
+        badge: p.badge,
+        previewImageUrl: p.preview_image_url,
+        shortDescription: p.short_description,
+        likeCount: p.like_count ?? 0,
+        viewCount: p.view_count ?? 0,
+      }));
+    }
+  }
+
+  return {
+    ...project,
+    relatedProjects,
+  };
 }
 
 export async function listProjects(
   supabase: SupabaseClient<Database>,
-  params: ListParams,
+  params: ListParams
 ) {
   const { p, take, fromIdx, toIdx } = calcRange(params.page, params.pageSize);
   const { field, ascending } = safeOrder(params.orderBy, params.order);
@@ -61,7 +106,7 @@ export async function listProjects(
     q = q
       .select(
         buildSelect(params.include, needStats) +
-          ",project_contributors!inner(user_id)",
+          ",project_contributors!inner(user_id)"
       )
       .in("project_contributors.user_id", params.contributors);
   }
@@ -117,7 +162,7 @@ export async function listProjects(
     if (error) throw error;
 
     const rows = (data ?? []).map((row) =>
-      mapProjectRow(row, params.include, false),
+      mapProjectRow(row, params.include, false)
     );
     result = { data: rows, count: count ?? rows.length, rows };
   }
@@ -137,7 +182,7 @@ export async function listProjects(
 export async function getUserProjects(
   supabase: SupabaseClient<Database>,
   userId: string,
-  include: IncludeKey[] = ["categories", "links", "files"],
+  include: IncludeKey[] = ["categories", "links", "files"]
 ) {
   const { data, error } = await supabase
     .from("project_collaborators")
@@ -165,7 +210,7 @@ export async function createProject(
     preview_image_url?: string;
     short_description?: string;
     status?: "Draft" | "Published" | "Certified";
-  },
+  }
 ) {
   const { data: project, error: projectError } = await supabase
     .from("projects")
@@ -204,7 +249,7 @@ export async function updateProject(
     preview_image_url?: string;
     short_description?: string;
     status?: "Draft" | "Published" | "Certified";
-  },
+  }
 ) {
   const { data: collaborator } = await supabase
     .from("project_collaborators")
@@ -232,7 +277,7 @@ export async function updateProject(
 export async function deleteProject(
   supabase: SupabaseClient<Database>,
   projectId: string,
-  userId: string,
+  userId: string
 ) {
   const { data: collaborator } = await supabase
     .from("project_collaborators")
